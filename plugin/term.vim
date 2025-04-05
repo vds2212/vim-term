@@ -3,12 +3,12 @@ function! s:SendToTerm(what)
   return ''
 endfunc
 
-let l:term_set_default_mapping = 1
+let s:term_set_default_mapping = 1
 if exists("g:term_set_default_mapping")
-  let l:term_set_default_mapping = g:term_set_default_mapping
+  let s:term_set_default_mapping = g:term_set_default_mapping
 endif
 
-if (has('nvim') || v:version >= 801) && l:term_set_default_mapping
+if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
   " Leave terminal with Ctrl-q
   tnoremap <C-q>  <C-\><C-n>
 
