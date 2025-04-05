@@ -1,0 +1,83 @@
+*term.txt* Easy terminal window creation and management
+
+Author:  Vivian De Smedt
+License: Same terms as Vim itself (see |license|)
+
+
+==============================================================================
+Term                                                                    |term|
+Introduction ............................................. |term-introduction|
+Usage ........................................................... |term-usage|
+Configuration ........................................... |term-configuration|
+About ........................................................... |term-about|
+
+
+==============================================================================
+INTRODUCTION                                          *term* *term-introduction*
+
+
+==============================================================================
+USAGE                                                             *term-usage*
+
+The plugin introduces the following commands:
+- Terminal
+- TermList
+- TermGo
+ 
+The `Terminal` command mimic the `terminal` command.
+It can be used to start a terminal or to start a command in a terminal.
+- It creates a Terminal in the current working directory
+- It executes the command if a command has been specified
+- The terminal window is vertical.
+  it with is determined by the `g:term_width` value (default to 100).
+- The terminal window with is fixed (it doesn't resize automatically)
+
+The `TermList` list all the active terminal buffer listing:
+- Its buffer index
+- Its name (the working directory of the terminal at its creation)
+
+The `TermGo` activate or create a terminal buffer.
+
+A terminal buffer can be identified by:
+- A name (the working directory of the terminal at its creation)
+- The buffer index
+
+The plugin introduces the following mapping:
+- `<Plug>(TermToggle)` that toggle on/off the terminal window.
+
+The plugin introduces the following default mappings:
+- `<C-q>` to switch to normal mode
+- `<C-w>h` to move the focus on the left window
+- `<C-w>l` to move the focus on the right window
+- `<C-w>j` to move the focus on the below window
+- `<C-w>k` to move the focus on the above window
+- `<C-w>p` to move the focus on the previous window
+- `<C-w>w` to move the focus on the next window
+- `<C-v>` to insert the content of the clipboard
+
+==============================================================================
+CONFIGURATION                                             *term-configuration*
+
+------------------------------------------------------------------------------
+Determine the default width of the console window                *g:term_with*
+
+The default value is 100
+
+------------------------------------------------------------------------------
+Define the command executed when the console is first created *g:term_command*
+
+The default value is the empty string
+
+------------------------------------------------------------------------------
+If 0 the default mappings are not created         *g:term_set_default_mapping*
+
+The default value is 1
+
+==============================================================================
+ABOUT                                                             *term-about*
+
+Grab the latest version or report a bug on GitHub:
+
+http://github.com/vds2212/vim-term
+
+ vim:tw=78:et:ft=help:norl:
