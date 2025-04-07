@@ -20,40 +20,51 @@ INTRODUCTION                                          *term* *term-introduction*
 USAGE                                                             *term-usage*
 
 The plugin introduces the following commands:
-- Terminal
-- TermList
-- TermGo
- 
-The `Terminal` command mimic the `terminal` command.
-It can be used to start a terminal or to start a command in a terminal.
-- It creates a Terminal in the current working directory
-- It executes the command if a command has been specified
-- The terminal window is vertical.
-  it with is determined by the `g:term_width` value (default to 100).
-- The terminal window with is fixed (it doesn't resize automatically)
+- |:Term|
+- |:TermList|
+- |:TermGo|
 
-The `TermList` list all the active terminal buffer listing:
-- Its buffer index
-- Its name (the working directory of the terminal at its creation)
+COMMANDS                                                       *term-commands*
 
-The `TermGo` activate or create a terminal buffer.
+                                                                       *:Term*
+:Term [command]      Create or activate a terminal and execute the command.
+                     - Creates a Terminal in the current working directory
+                     - Executes the command if a command has been specified
+                     - The terminal window is vertical,
+                       its width is determined by the |g:term_width| value
+                       (default to 100).
+                     - The terminal window with is fixed (it doesn't re-size
+                       automatically)
 
-A terminal buffer can be identified by:
-- A name (the working directory of the terminal at its creation)
-- The buffer index
+                                                                   *:TermList*
+:TermList            List all the active terminal buffers. For each terminal
+                     it List:
+                     - Its buffer index
+                     - Its name (the working directory of the terminal at its
+                       creation)
+                                                                     *:TermGo*
+:TermGo [name]       Activate or create a terminal buffer.
+                     A terminal buffer can be identified by:
+                     - A name (the working directory of the terminal at its
+                       creation)
+                     - A buffer index
+
+MAPS                                                               *term-maps*
 
 The plugin introduces the following mapping:
-- `<Plug>(TermToggle)` that toggle on/off the terminal window.
+
+<Plug>(TermToggle)   Toggle on/off the terminal window.
 
 The plugin introduces the following default mappings:
-- `<C-q>` to switch to normal mode
-- `<C-w>h` to move the focus on the left window
-- `<C-w>l` to move the focus on the right window
-- `<C-w>j` to move the focus on the below window
-- `<C-w>k` to move the focus on the above window
-- `<C-w>p` to move the focus on the previous window
-- `<C-w>w` to move the focus on the next window
-- `<C-v>` to insert the content of the clipboard
+
+<C-q>                Switch to normal mode
+<C-w>h               Move the focus on the left window
+<C-w>l               Move the focus on the right window
+<C-w>j               Move the focus on the below window
+<C-w>k               Move the focus on the above window
+<C-w>p               Move the focus on the previous window
+<C-w>w               Move the focus on the next window
+<C-v>                Insert the content of the clipboard
 
 ==============================================================================
 CONFIGURATION                                             *term-configuration*

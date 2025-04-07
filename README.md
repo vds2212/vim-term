@@ -16,11 +16,11 @@ It is rather clumsy to:
 ## Commands
 
 The plugin introduces the following commands:
-- Terminal
+- Term
 - TermList
 - TermGo
 
-The `Terminal` command mimic the `terminal` command.
+The `Term` command mimic the `terminal` command.
 It can be used to start a terminal or to start a command in a terminal.
 - It creates a Terminal in the current working directory
 - It execute the command if a command has been specified

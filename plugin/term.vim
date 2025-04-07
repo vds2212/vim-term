@@ -228,7 +228,7 @@ function! s:GetTermBufNr(name)
     return 0
 endfunction
 
-function! Terminal(terminal, ...)
+function! Term(terminal, ...)
   let l:winnr = winnr()
   call s:TermGo(a:terminal)
   let l:mode = mode()
@@ -253,5 +253,5 @@ function! Terminal(terminal, ...)
   endif
 endfunction
 
-command! -count -nargs=? Terminal call Terminal(<count>, <f-args>)
+command! -count -nargs=? Term call Term(<count>, <f-args>)
 
