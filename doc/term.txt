@@ -22,7 +22,7 @@ USAGE                                                             *term-usage*
 The plugin introduces the following commands:
 - |:Term|
 - |:TermList|
-- |:TermGo|
+- |:TermOpen|
 
 COMMANDS                                                       *term-commands*
 
@@ -42,8 +42,8 @@ COMMANDS                                                       *term-commands*
                      - Its buffer index
                      - Its name (the working directory of the terminal at its
                        creation)
-                                                                     *:TermGo*
-:TermGo [name]       Activate or create a terminal buffer.
+                                                                   *:TermOpen*
+:TermOpen [name]     Activate or create a terminal buffer.
                      A terminal buffer can be identified by:
                      - A name (the working directory of the terminal at its
                        creation)
@@ -58,12 +58,15 @@ The plugin introduces the following mapping:
 The plugin introduces the following default mappings:
 
 <C-q>                Switch to normal mode
+
 <C-w>h               Move the focus on the left window
-<C-w>l               Move the focus on the right window
 <C-w>j               Move the focus on the below window
 <C-w>k               Move the focus on the above window
+<C-w>l               Move the focus on the right window
+
 <C-w>p               Move the focus on the previous window
 <C-w>w               Move the focus on the next window
+
 <C-v>                Insert the content of the clipboard
 
 ==============================================================================
@@ -83,6 +86,19 @@ The default value is the empty string
 If 0 the default mappings are not created         *g:term_set_default_mapping*
 
 The default value is 1
+
+------------------------------------------------------------------------------
+The folder to use by default for TermOpen              *g:term_default_folder*
+
+vim-term use a default folder for:
+- The TermOpen command
+- The Plug>(TermToggle) mapping
+
+Possible values are:
+- '%' the parent folder of the path of the current buffer
+- '.' the current directory
+
+The default value is '%' 
 
 ==============================================================================
 ABOUT                                                             *term-about*

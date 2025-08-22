@@ -18,7 +18,7 @@ It is rather clumsy to:
 The plugin introduces the following commands:
 - Term
 - TermList
-- TermGo
+- TermOpen
 
 The `Term` command mimic the `terminal` command.
 It can be used to start a terminal or to start a command in a terminal.
@@ -31,7 +31,7 @@ The `TermList` list all the active terminal buffer listing:
 - Its buffer index
 - Its name (the working directory of the terminal at its creation)
 
-The `TermGo` activate or create a terminal buffer.
+The `TermOpen` activate or create a terminal buffer.
 
 A terminal buffer can be identified by:
 - A name (the working directory of the terminal at its creation)

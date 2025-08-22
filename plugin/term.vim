@@ -8,6 +8,11 @@ if exists("g:term_set_default_mapping")
   let s:term_set_default_mapping = g:term_set_default_mapping
 endif
 
+let s:term_default_folder = '%'
+if !exists("g:term_default_folder")
+  let g:term_default_folder = s:term_default_folder
+endif
+
 if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
   " Leave terminal with Ctrl-q
   tnoremap <C-q>  <C-\><C-n>
@@ -30,35 +35,43 @@ if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
   tnoremap <expr> <C-Cr> <SID>SendToTerm("\<Esc>\<Cr>")
 endif
 
-function! s:TermGo(...) abort
+function! s:TermOpen(default_name, ...) abort
   " - Switch to existing terminal window if any
   "   Otherwise create one
   " - Switch the terminal window to the desired terminal buffer
   "   Otherwise create one
   let l:bufindex = 0
   if a:0 == 0 || a:1 == "0"
+    let l:name = a:default_name
+
     " If no name is given use the working directory:
-    let l:name = fnamemodify(getcwd(), ':p')
+    " if l:name == "."
+    "   let l:name = fnamemodify(getcwd(), ':p')
+    " endif
 
     " If no name is given use the current file directory:
-    " let l:name = fnamemodify(expand('%:p:h'), ':p')
+    " if l:name == "%"
+    "   let l:name = fnamemodify(expand('%:p:h'), ':p')
+    " endif
   else
-    if a:1 =~ '^\d\+'
-      " The argument is the buffer index:
-      let l:bufindex = str2nr(a:1)
-      let l:name = ''
+    let l:name = a:1
+  endif
+
+  if l:name =~ '^\d\+'
+    " The argument is the buffer index:
+    let l:bufindex = str2nr(a:1)
+    let l:name = ''
+  else
+    " The argument is the terminal "name"
+    let l:name = expand(l:name)
+    if !isdirectory(l:name)
+      " If the name given is the name of a file
+      " use the parent folder
+      " End with '/'
+      let l:name = fnamemodify(fnamemodify(l:name, ':p:h'), ':p')
     else
-      " The argument is the terminal "name"
-      let l:name = expand(a:1)
-      if !isdirectory(l:name)
-        " If the name given is the name of a file
-        " use the parent folder
-        " End with '/'
-        let l:name = fnamemodify(fnamemodify(l:name, ':p:h'), ':p')
-      else
-        " End with '/'
-        let l:name = fnamemodify(l:name, ':p')
-      endif
+      " End with '/'
+      let l:name = fnamemodify(l:name, ':p')
     endif
   endif
 
@@ -145,7 +158,7 @@ function! s:TermGo(...) abort
   if has('nvim')
     " The redirection to >nul hide the output of the console
     " terminal cmd.exe /s /k C:\Softs\Clink\Clink.bat inject
-    execute "terminal" g:term_command
+    execute "terminal" l:term_command
     " Switch to console mode:
     norma a
   else
@@ -174,7 +187,7 @@ function! s:TermComplete(arg_lead, cmd_line, position)
   return join(ret, "\n")
 endfunction
 
-command! -complete=custom,<SID>TermComplete -nargs=? TermGo call <SID>TermGo(<f-args>)
+command! -complete=custom,<SID>TermComplete -nargs=? TermOpen call <SID>TermOpen(g:term_default_folder, <f-args>)
 
 function! s:TermToggle(name)
   let win_infos = getwininfo()
@@ -187,11 +200,11 @@ function! s:TermToggle(name)
     endfor
     return
   else
-    call s:TermGo(a:name)
+    call s:TermOpen("", a:name)
   endif
 endfunction
 
-nnoremap <Plug>(TermToggle) <cmd>call <SID>TermToggle(expand('%:p:h'))<CR>
+nnoremap <Plug>(TermToggle) <cmd>call <SID>TermToggle(g:term_default_folder)<CR>
 
 function! s:TermList()
   let ret = []
@@ -230,7 +243,7 @@ endfunction
 
 function! Term(terminal, ...)
   let l:winnr = winnr()
-  call s:TermGo(a:terminal)
+  call s:TermOpen("", a:terminal)
   let l:mode = mode()
   if l:mode != "t"
     " Switch to terminal mode:
