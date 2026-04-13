@@ -78,6 +78,14 @@ Determine the default width of the console window                *g:term_with*
 The default value is 100
 
 ------------------------------------------------------------------------------
+Define the command executed when the console is first        *g:term_commands*
+created.
+
+The command used is the one that correspond to the <count>
+
+The default value is the empty list
+
+------------------------------------------------------------------------------
 Define the command executed when the console is first created *g:term_command*
 
 The default value is the empty string

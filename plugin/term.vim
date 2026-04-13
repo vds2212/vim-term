@@ -3,17 +3,7 @@ function! s:SendToTerm(what)
   return ''
 endfunc
 
-let s:term_set_default_mapping = 1
-if exists("g:term_set_default_mapping")
-  let s:term_set_default_mapping = g:term_set_default_mapping
-endif
-
-let s:term_default_folder = '%'
-if !exists("g:term_default_folder")
-  let g:term_default_folder = s:term_default_folder
-endif
-
-if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
+function! s:TermSetDefaultMapping()
   " Leave terminal with Ctrl-q
   tnoremap <C-q>  <C-\><C-n>
 
@@ -33,9 +23,56 @@ if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
 
   " Make <kbd>Ctrl-Enter</kbd> passed correctly into the terminal
   tnoremap <expr> <C-Cr> <SID>SendToTerm("\<Esc>\<Cr>")
-endif
+endfunction
 
-function! s:TermOpen(default_name, ...) abort
+function! s:TermWinEnter()
+  let winid = win_getid(winnr())
+  let wininfos = getwininfo(winid)
+  if len(wininfos) == 0
+    return
+  endif
+  let wininfo = wininfos[0]
+  let terminal = wininfo.terminal
+  let mode = mode()
+  if terminal == 1 && mode == 'n'
+    normal a
+  endif
+endfunction
+
+
+function! TermSetup()
+  let s:term_set_default_mapping = 1
+  if exists("g:term_set_default_mapping")
+    let s:term_set_default_mapping = g:term_set_default_mapping
+  endif
+
+  if (has('nvim') || v:version >= 801) && s:term_set_default_mapping
+    call s:TermSetDefaultMapping()
+  endif
+
+  let s:term_default_folder = '%'
+  if !exists("g:term_default_folder")
+    let g:term_default_folder = s:term_default_folder
+  endif
+
+  augroup vimterm
+  autocmd!
+  if has('nvim')
+      " Delete the term buffer when exting the terminal process
+      autocmd TermClose * bwipeout
+
+      " Switch to command mode when entering a terminal window
+      autocmd TermOpen * startinsert
+  endif
+
+  " Switch to command mode when entering a terminal window
+  autocmd WinEnter * call <SID>TermWinEnter()
+  augroup END
+endfunction
+
+call TermSetup()
+
+function! s:TermOpen(default_name, count, ...) abort
   " - Switch to existing terminal window if any
   "   Otherwise create one
   " - Switch the terminal window to the desired terminal buffer
@@ -126,6 +163,11 @@ function! s:TermOpen(default_name, ...) abort
     if len(buf_infos)
       " If a hidden terminal with the right name exist use it:
       execute 'buffer ' . buf_infos[0].bufnr
+      if has('nvim')
+        if mode() == 'n'
+          normal a
+        endif
+      endif
       return
     endif
   endif
@@ -150,7 +192,9 @@ function! s:TermOpen(default_name, ...) abort
   endif
 
   let l:term_command = ''
-  if exists('g:term_command')
+  if exists("g:term_commands") && a:count < len(g:term_commands)
+    let l:term_command = g:term_commands[a:count]
+  elseif exists('g:term_command')
     let l:term_command = g:term_command
   endif
 
@@ -187,7 +231,7 @@ function! s:TermComplete(arg_lead, cmd_line, position)
   return join(ret, "\n")
 endfunction
 
-command! -complete=custom,<SID>TermComplete -nargs=? TermOpen call <SID>TermOpen(g:term_default_folder, <f-args>)
+command! -complete=custom,<SID>TermComplete -nargs=? -count TermOpen call <SID>TermOpen(g:term_default_folder, <count>, <f-args>)
 
 function! s:TermToggle(name)
   let win_infos = getwininfo()
@@ -200,7 +244,7 @@ function! s:TermToggle(name)
     endfor
     return
   else
-    call s:TermOpen("", a:name)
+    call s:TermOpen("", v:count, a:name)
   endif
 endfunction
 
@@ -241,9 +285,9 @@ function! s:GetTermBufNr(name)
     return 0
 endfunction
 
-function! Term(terminal, ...)
+function! Term(terminal, count, ...)
   let l:winnr = winnr()
-  call s:TermOpen("", a:terminal)
+  call s:TermOpen("", a:count, a:terminal)
   let l:mode = mode()
   if l:mode != "t"
     " Switch to terminal mode:
@@ -266,5 +310,5 @@ function! Term(terminal, ...)
   endif
 endfunction
 
-command! -count -nargs=? Term call Term(<count>, <f-args>)
+command! -count -nargs=? Term call Term(<count>, 0, <f-args>)
 
