@@ -59,7 +59,7 @@ function! TermSetup()
   autocmd!
   if has('nvim')
       " Delete the term buffer when exting the terminal process
-      autocmd TermClose * bwipeout
+      autocmd TermClose * if exists('b:vimterm_name') | bwipeout | end
 
       " Switch to command mode when entering a terminal window
       autocmd TermOpen * startinsert
@@ -128,7 +128,7 @@ function! s:TermOpen(default_name, count, ...) abort
       let win_info = filter(win_infos, "v:val.bufnr ==" . l:bufindex)
     else
       " The argument is the terminal "name"
-      let win_info = filter(win_infos, "getbufvar(v:val.bufnr, 'terminal_name')=='" . l:name . "'")
+      let win_info = filter(win_infos, "getbufvar(v:val.bufnr, 'vimterm_name')=='" . l:name . "'")
     endif
 
     if len(win_info) > 0
@@ -158,7 +158,7 @@ function! s:TermOpen(default_name, count, ...) abort
   endif
   if len(buf_infos)
     if l:bufindex == 0
-      let buf_infos = filter(buf_infos, "getbufvar(v:val.bufnr, 'terminal_name')=='" . l:name . "'")
+      let buf_infos = filter(buf_infos, "getbufvar(v:val.bufnr, 'vimterm_name')=='" . l:name . "'")
     endif
     if len(buf_infos)
       " If a hidden terminal with the right name exist use it:
@@ -214,7 +214,7 @@ function! s:TermOpen(default_name, count, ...) abort
   endif
 
   setlocal nobuflisted
-  let b:terminal_name = l:name
+  let b:vimterm_name = l:name
   " Set a name for the terminal buffer:
   execute 'file' 'Term ' . bufnr()
 
@@ -251,6 +251,9 @@ endfunction
 nnoremap <Plug>(TermToggle) <cmd>call <SID>TermToggle(g:term_default_folder)<CR>
 
 function! s:TermList()
+  " List the terminal created using vim-term:
+  " - buffer number
+  " - terminal name (initial working directory)
   let ret = []
   let buf_infos = filter(getbufinfo(), "getbufvar(v:val.bufnr, '&buftype')=='terminal'")
 
@@ -258,50 +261,52 @@ function! s:TermList()
   let cwd = fnamemodify(cwd, ':p')
 
   for buf_info in buf_infos
-    if !has_key(buf_info.variables, 'terminal_name')
+    if !has_key(buf_info.variables, 'vimterm_name')
       continue
     endif
-    let terminal_name  = buf_info.variables.terminal_name
-    if terminal_name[0:len(cwd)-1] ==# cwd
-      let terminal_name = terminal_name[len(cwd):]
-      if terminal_name == ''
-        let terminal_name = '.'
+    let vimterm_name  = buf_info.variables.vimterm_name
+    if vimterm_name[0:len(cwd)-1] ==# cwd
+      " If the initial working directory is a child of the working directory
+      " Adapt the name to a relative path
+      let vimterm_name = vimterm_name[len(cwd):]
+      if vimterm_name == ''
+        let vimterm_name = '.'
       endif
     endif
-    call add(ret, [buf_info.bufnr, terminal_name])
+    call add(ret, [buf_info.bufnr, vimterm_name])
   endfor
   return ret
 endfunction
 
 command TermList echo join(map(<SID>TermList(), {_, val -> printf("%3d %s", val[0], val[1])}), "\n")
 
-function! s:GetTermBufNr(name)
-    let buf_infos = getbufinfo()
-    call filter(buf_infos, "getbufvar(v:val.bufnr, '&buftype')=='terminal'")
-    call filter(buf_infos, "getbufvar(v:val.bufnr, 'terminal_name')=='" . a:name . "'")
-    if len(buf_infos)
-      return buf_infos[0].bufnr
-    endif
-    return 0
-endfunction
+"function! s:GetTermBufNr(name)
+"    let buf_infos = getbufinfo()
+"    call filter(buf_infos, "getbufvar(v:val.bufnr, '&buftype')=='terminal'")
+"    call filter(buf_infos, "getbufvar(v:val.bufnr, 'vimterm_name')=='" . a:name . "'")
+"    if len(buf_infos)
+"      return buf_infos[0].bufnr
+"    endif
+"    return 0
+"endfunction
 
 function! Term(terminal, count, ...)
+  " Replacement for the terminal command:
   let l:winnr = winnr()
+
+  " Open and iteractive console:
   call s:TermOpen("", a:count, a:terminal)
+
   let l:mode = mode()
   if l:mode != "t"
     " Switch to terminal mode:
     normal a
   endif
-  if a:0
-    let l:what = a:1
-    call term_sendkeys(bufnr(), l:what . "\<Cr>")
 
-    " Try to switch back to normal mode:
-    " if l:mode != mode()
-    "   call term_wait(bufnr())
-    "   call feedkeys("\<C-\>\<C-n>", "x")
-    " endif
+  if a:0
+    " Pass the command to the interactive console if any:
+    let l:what = a:1
+    call term_sendkeys(bufnr(), l:what . "\<CR>")
 
     if winnr() != l:winnr
       " Don't switch to terminal if a command has been executed
